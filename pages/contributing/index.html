@@ -12,14 +12,20 @@
   <div class="bg-glow" style="left: -200px; right: auto; background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, rgba(10, 10, 15, 0) 70%);"></div>
   <div class="bg-glow-2" style="top: -100px; bottom: auto; right: -100px; left: auto; background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(10, 10, 15, 0) 70%);"></div>
 
-  <div class="container">
-    <header class="fade-in-up">
+  <nav class="glass-nav fade-in-up">
+    <div class="nav-container">
       <a href="../../index.html" class="logo">
         <div class="logo-dot"></div>
         NaufalRizqullah
       </a>
-      <a href="../../index.html" class="btn btn-glass">← Back to Portfolio</a>
-    </header>
+      <div class="nav-links">
+        <a href="../../index.html" class="nav-link">Home</a>
+        <a href="index.html" class="nav-link active">Contributing</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
 
     <main>
       <section class="support-section fade-in-up delay-1">
@@ -48,10 +54,9 @@
       </section>
     </main>
 
-    <footer class="fade-in-up delay-3" style="margin-top: 100px;">
-      <p>© 2026 Muhammad Naufal Rizqullah. Open Source enthusiast.</p>
-    </footer>
+    <custom-footer margin-top="100px"></custom-footer>
   </div>
+  <script src="../../assets/js/components/footer.js"></script>
   <script src="../../assets/js/main.js"></script>
 </body>
 </html>
