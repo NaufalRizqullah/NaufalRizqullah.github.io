@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyUnram Tracker</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* CSS untuk Transisi Modal */
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+        
+        /* Custom FullCalendar Styles */
+        .fc-toolbar-title { font-size: 1.25rem !important; font-weight: 600 !important; }
+        .fc-button { background-color: #2563eb !important; border: none !important; }
+        .fc-button:hover { background-color: #1d4ed8 !important; }
+        
+        /* Style untuk List Absen di dalam Modal */
+        #existingAbsenInfo ul { list-style: none; padding: 0; margin: 0; }
+        #existingAbsenInfo li { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 4px 0; 
+            border-bottom: 1px dashed #e2e8f0; 
+        }
+        #existingAbsenInfo li:last-child { border-bottom: none; }
+        #existingAbsenInfo li span.time { font-weight: 600; color: #1e40af; }
+        .empty-data { color: #94a3b8; font-style: italic; text-align: center; }
+
+        /* Responsif untuk Mobile (FullCalendar) */
+        @media (max-width: 768px) {
+            .fc-toolbar-title { font-size: 1rem !important; }
+            .fc-button { padding: 0.2rem 0.4rem !important; font-size: 0.8rem !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-700 min-h-screen font-sans selection:bg-blue-200">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-slate-800 tracking-tight">
+            MyUnram <span class="text-blue-600">Attendance</span> Tracker
+        </h1>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
+            
+            <div class="w-full lg:w-80 flex-shrink-0 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-lg font-semibold text-slate-700 mb-4 pb-3 border-b border-slate-100">
+                    Pilih Pengguna
+                </h3>
+                
+                <div class="flex flex-col gap-4">
+                    <div class="relative">
+                        <select id="username" class="w-full bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3 outline-none transition-colors">
+                            <option value="199911172025211028">M. Naufal Rizqullah</option>
+                            <option value="196112311988031008">Amin</option>
+                            </select>
+                    </div>
+                    
+                    <button onclick="searchUser()" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 transition-all shadow-md hover:shadow-lg">
+                        Tampilkan Data
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 w-full bg-white p-6 rounded-2xl shadow-sm border border-slate-200 min-h-[500px]">
+                
+                <div id="userInfo" style="display:none;" class="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-6">
+                    <h3 id="namaStaff" class="text-xl font-bold text-blue-900 mb-2"></h3>
+                    <div class="flex flex-col sm:flex-row sm:gap-6 text-sm text-blue-700/80">
+                        <p>Username: <span id="usernameStaff" class="font-medium text-blue-900"></span></p>
+                        <p>Instansi: <span id="instansiStaff" class="font-medium text-blue-900"></span></p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+                    <h3 class="text-lg font-bold text-slate-700 hidden sm:block">Kalender Absensi</h3>
+                    
+                    <button onclick="openModalManual()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="12" y1="15" x2="12" y2="15"></line></svg>
+                        Absen / Tambah Data
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <div id='calendar' class="min-w-[300px]"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="absenModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        
+        <div class="modal-content bg-white w-full max-w-md rounded-2xl shadow-2xl relative overflow-hidden">
+            
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-800">Detail Absensi</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 transition-colors text-2xl leading-none">&times;</button>
+            </div>
+
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm font-medium text-slate-700">Tanggal:</label>
+                    <input type="date" id="modalDateInput" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm" required>
+                </div>
+                
+                <div id="existingAbsenInfo" class="bg-slate-50 rounded-lg border border-slate-200 p-4 mb-5 text-sm">
+                    </div>
+
+                <form id="absenForm" onsubmit="submitManualAbsen(event)" class="flex flex-col gap-4">
+                    <div>
+                        <label for="absenType" class="block mb-2 text-sm font-medium text-slate-700">Tipe Absen Baru:</label>
+                        <select id="absenType" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 shadow-sm">
+                            <option value="mulai">Masuk (07:01 - 07:15)</option>
+                            <option value="istirahat_mulai">Istirahat Keluar (12:00 - 12:15)</option>
+                            <option value="istirahat_selesai">Istirahat Masuk (13:00 - 13:15)</option>
+                            <option value="selesai">Pulang (16:00 - 16:30)</option>
+                            <option value="mulai_dosen">Waktu Dosen (08:00 - 12:00)</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all mt-2 shadow-sm hover:shadow-md">
+                        Simpan Absen (Random Time)
+                    </button>
+                </form>
+
+                <div class="relative flex items-center py-4">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-400 text-sm font-medium">ATAU</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <form id="pulangForm" onsubmit="submitPulangOtomatis(event)" class="flex flex-col gap-4 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                    <div>
+                        <label for="lamaKerja" class="block mb-2 text-sm font-semibold text-indigo-900">Generate Pulang Otomatis</label>
+                        <select id="lamaKerja" class="bg-white border border-indigo-200 text-indigo-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 shadow-sm">
+                            <option value="8">8 Jam</option>
+                            <option value="8.5">8.5 Jam</option>
+                        </select>
+                    </div>
+                    <p class="text-xs text-indigo-700/80 leading-relaxed">
+                        Waktu pulang dihitung dari <strong>Jam Masuk</strong> yang tercatat + <strong>Total Jam Kerja</strong> + <strong>Kompensasi Jeda Istirahat (1 Jam)</strong> + <strong>(1-30 menit acak)</strong>.
+                    </p>
+                    <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="m17 5-5-3-5 3"></path><path d="m19 19-7 3-7-3"></path><path d="M2 12h20"></path></svg>
+                        Generate Pulang
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
