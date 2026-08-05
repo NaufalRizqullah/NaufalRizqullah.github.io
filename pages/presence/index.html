@@ -201,7 +201,6 @@
             <div class="nav-links">
                 <a href="../../index.html" class="nav-link">Home</a>
                 <a href="../contributing/index.html" class="nav-link">Contributing</a>
-                <a href="index.html" class="nav-link active">Presence</a>
             </div>
         </div>
     </nav>
@@ -272,7 +271,7 @@
     <div id="absenModal"
         class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
 
-        <div class="modal-content glass-card w-full max-w-md max-h-[90vh] !p-0 relative flex flex-col overflow-hidden">
+        <div class="modal-content glass-card w-full max-w-3xl max-h-[90vh] !p-0 relative flex flex-col overflow-hidden">
 
             <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center shrink-0 bg-white/5">
                 <h3 class="text-lg font-bold text-white font-outfit">Detail Absensi</h3>
@@ -290,65 +289,81 @@
                 <div id="existingAbsenInfo" class="bg-black/30 rounded-xl border border-white/10 p-5 mb-6 text-sm">
                 </div>
 
-                <form id="absenForm" onsubmit="submitManualAbsen(event)" class="flex flex-col gap-4">
-                    <div>
-                        <label for="absenType" class="block mb-2 text-sm font-medium text-gray-300">Tipe Absen
-                            Baru:</label>
-                        <select id="absenType" class="glass-input text-sm rounded-lg block w-full p-2.5">
-                            <option value="mulai">Masuk (07:01 - 07:15)</option>
-                            <option value="istirahat_mulai">Istirahat Keluar (12:00 - 12:15)</option>
-                            <option value="istirahat_selesai">Istirahat Masuk (13:00 - 13:15)</option>
-                            <option value="selesai">Pulang (16:00 - 16:30)</option>
-                            <option value="mulai_dosen">Waktu Dosen (08:00 - 12:00)</option>
-                        </select>
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <form id="absenForm" onsubmit="submitManualAbsen(event)" class="flex flex-col gap-4 h-full">
+                            <div>
+                                <label for="absenType" class="block mb-2 text-sm font-medium text-gray-300">Tipe Absen Baru:</label>
+                                <select id="absenType" class="glass-input text-sm rounded-lg block w-full p-2.5">
+                                    <option value="mulai">Masuk (07:01 - 07:15)</option>
+                                    <option value="istirahat_mulai">Istirahat Keluar (12:00 - 12:15)</option>
+                                    <option value="istirahat_selesai">Istirahat Masuk (13:00 - 13:15)</option>
+                                    <option value="selesai">Pulang (16:00 - 16:30)</option>
+                                    <option value="mulai_dosen">Waktu Dosen (08:00 - 12:00)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mt-auto pt-2">
+                                <button type="submit"
+                                    class="w-full text-white bg-emerald-600 hover:bg-emerald-500 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all shadow-[0_0_15px_rgba(5,150,105,0.4)] hover:shadow-[0_0_25px_rgba(5,150,105,0.6)]">
+                                    Simpan Absen (Random Time)
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
-                    <button type="submit"
-                        class="w-full text-white bg-emerald-600 hover:bg-emerald-500 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all mt-2 shadow-[0_0_15px_rgba(5,150,105,0.4)] hover:shadow-[0_0_25px_rgba(5,150,105,0.6)]">
-                        Simpan Absen (Random Time)
-                    </button>
-                </form>
+                    <div class="md:hidden relative flex items-center py-2">
+                        <div class="flex-grow border-t border-white/10"></div>
+                        <span class="flex-shrink-0 mx-4 text-gray-400 text-xs font-medium uppercase tracking-wider">Atau</span>
+                        <div class="flex-grow border-t border-white/10"></div>
+                    </div>
+                    
+                    <div class="hidden md:flex flex-col items-center justify-center relative w-10 shrink-0">
+                        <div class="h-full border-l border-white/10"></div>
+                        <span class="absolute bg-[#12121a] py-2 text-gray-400 text-xs font-medium uppercase tracking-wider">Atau</span>
+                    </div>
 
-                <div class="relative flex items-center py-6">
-                    <div class="flex-grow border-t border-white/10"></div>
-                    <span
-                        class="flex-shrink-0 mx-4 text-gray-400 text-xs font-medium uppercase tracking-wider">Atau</span>
-                    <div class="flex-grow border-t border-white/10"></div>
+                    <div class="flex-1">
+                        <form id="pulangForm" onsubmit="submitPulangOtomatis(event)"
+                            class="flex flex-col gap-4 bg-indigo-900/20 p-5 rounded-xl border border-indigo-500/20 h-full">
+                            <div>
+                                <label for="lamaKerja" class="block mb-2 text-sm font-semibold text-accent"
+                                    style="color: #818cf8;">Generate Pulang Otomatis</label>
+                                <select id="lamaKerja" class="glass-input text-sm rounded-lg block w-full p-2.5">
+                                    <option value="8">8 Jam</option>
+                                    <option value="8.5">8.5 Jam</option>
+                                </select>
+                            </div>
+                            <p class="text-xs text-gray-400 leading-relaxed">
+                                Waktu pulang dihitung dari <strong class="text-gray-200">Jam Masuk</strong> yang tercatat +
+                                <strong class="text-gray-200">Total Jam Kerja</strong> + <strong class="text-gray-200">Kompensasi Jeda (1 Jam)</strong> + <strong class="text-gray-200">(1-30 menit acak)</strong>.
+                            </p>
+                            
+                            <div class="mt-auto pt-2">
+                                <button type="submit"
+                                    class="w-full btn btn-primary flex items-center justify-center gap-2 py-3 text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2v20"></path>
+                                        <path d="m17 5-5-3-5 3"></path>
+                                        <path d="m19 19-7 3-7-3"></path>
+                                        <path d="M2 12h20"></path>
+                                    </svg>
+                                    Generate Pulang
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-
-                <form id="pulangForm" onsubmit="submitPulangOtomatis(event)"
-                    class="flex flex-col gap-4 bg-indigo-900/20 p-5 rounded-xl border border-indigo-500/20">
-                    <div>
-                        <label for="lamaKerja" class="block mb-2 text-sm font-semibold text-accent"
-                            style="color: #818cf8;">Generate Pulang Otomatis</label>
-                        <select id="lamaKerja" class="glass-input text-sm rounded-lg block w-full p-2.5">
-                            <option value="8">8 Jam</option>
-                            <option value="8.5">8.5 Jam</option>
-                        </select>
-                    </div>
-                    <p class="text-xs text-gray-400 leading-relaxed">
-                        Waktu pulang dihitung dari <strong class="text-gray-200">Jam Masuk</strong> yang tercatat +
-                        <strong class="text-gray-200">Total Jam Kerja</strong> + <strong
-                            class="text-gray-200">Kompensasi Jeda (1 Jam)</strong> + <strong class="text-gray-200">(1-30
-                            menit acak)</strong>.
-                    </p>
-                    <button type="submit"
-                        class="w-full btn btn-primary mt-2 flex items-center justify-center gap-2 py-3 text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2v20"></path>
-                            <path d="m17 5-5-3-5 3"></path>
-                            <path d="m19 19-7 3-7-3"></path>
-                            <path d="M2 12h20"></path>
-                        </svg>
-                        Generate Pulang
-                    </button>
-                </form>
             </div>
         </div>
     </div>
 
+    <custom-footer></custom-footer>
+
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src="../../assets/js/components/footer.js"></script>
+    <script src="../../assets/js/main.js"></script>
     <script src="app.js"></script>
 
 </body>
